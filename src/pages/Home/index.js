@@ -16,7 +16,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
-import styles from '../../asset/todo/style';
+import globalStyles from '../../asset/global/style';
 
 const Home = ({route, navigation}) => {
 const { email } = route.params;
@@ -36,13 +36,13 @@ const { email } = route.params;
     <>
       <SafeAreaView>
         <ScrollView>
-          <View>
-            <Text style={styles.h1}>Sukses Login!!</Text>
-            <Text style={styles.welcome}>Welcome {email}</Text>
-          </View>
-		  <TouchableOpacity style={styles.buttonLogout} onPress={logOut}>
-              <Text style={styles.buttonText}>Log Out</Text>
+          <View style={globalStyles.margin}>
+            <Text style={globalStyles.h1}>Sukses Login!!</Text>
+            <Text style={globalStyles.welcome}>Selamat datang, {email}</Text>
+            <TouchableOpacity style={globalStyles.buttonLogout} onPress={logOut}>
+              <Text style={globalStyles.buttonText}>Log Out</Text>
             </TouchableOpacity>
+          </View>
         </ScrollView>
       </SafeAreaView>
     </>

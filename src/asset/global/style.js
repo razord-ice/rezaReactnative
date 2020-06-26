@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import {StyleSheet} from 'react-native';
 
-const styles = StyleSheet.create({
+const globalStyles = StyleSheet.create({
   title: {
     fontSize: 21,
     fontWeight: 'bold',
@@ -84,6 +84,9 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     padding: 10,
   },
+  margin: {
+    margin: 10
+  }
 });
 
-export default styles;
+export default globalStyles;

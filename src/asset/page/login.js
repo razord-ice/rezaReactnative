@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import {StyleSheet} from 'react-native';
 
-const styles = StyleSheet.create({
+const loginStyle = StyleSheet.create({
   header: {
     backgroundColor: 'lightgreen',
     borderWidth: 1,
@@ -54,4 +54,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default styles;
+export default loginStyle;

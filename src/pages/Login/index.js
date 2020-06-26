@@ -21,35 +21,41 @@ import {
 import {mutate} from '../../services/graphql/api';
 import {gql} from 'apollo-boost';
 import AsyncStorage from '@react-native-community/async-storage';
-import styles from '../../asset/todo/style';
-import styless from '../../asset/style';
+import globalStyles from '../../asset/global/style';
+import loginStyle from '../../asset/page/login';
 
 const Login = ({navigation}) => {
-  const [username, setUsername] = useState(Platform.OS === 'ios' ? '' : null);
-  const [password, setPassword] = useState(Platform.OS === 'ios' ? '' : null);
+  const [username, setUsername] = useState('tomo@icube.us');
+  const [password, setPassword] = useState('Admin123');
 
   const gotoHome = () => {
     navigation.navigate('Home', { email: username });
   };
+
   const getData = async () => {
     try {
       const value = await AsyncStorage.getItem('token');
       if (value !== null) {
-        // value previously stored
-        console.log(value);
         gotoHome();
       }
     } catch (e) {
       // error reading value
     }
   };
-  const storeData = async (value) => {
+
+  const storeData = async value => {
     try {
-      await AsyncStorage.setItem('token', value);
+      let dataFormat = {
+        type: 'signIn',
+        token: value,
+      };
+      const jsonValue = JSON.stringify(dataFormat);
+      await AsyncStorage.setItem('token', jsonValue);
     } catch (e) {
       // saving error
     }
   };
+
   const postLogin = () => {
     let schema = gql`
       mutation generateCustomerTokenCustom($email: String!, $pass: String!) {
@@ -58,40 +64,39 @@ const Login = ({navigation}) => {
         }
       }
     `;
+
     let params = {email: username, pass: password};
-    mutate(schema, params).then((res) => {
+
+    mutate(schema, params).then(res => {
       const {data} = res;
       const user = data.generateCustomerTokenCustom;
-    //   console.log(user.token);
+      getData(user.token);
       storeData(user.token);
-      getData();
+      // console.log(user.token);
     });
   };
   return (
     <>
       <SafeAreaView>
         <ScrollView>
-          <View style={styless.box}>
-            <Text style={styless.label}> Username</Text>
-            <TextInput style={styles.inputText}
+          <View style={loginStyle.box}>
+            <Text style={loginStyle.label}>Username</Text>
+            <TextInput style={globalStyles.inputText}
               onChangeText={(text) => {
                 setUsername(text);
               }}
             />
             <View />
-            <Text style={styless.label}> password</Text>
-            <TextInput style={styles.inputText}
+            <Text style={loginStyle.label}>Password</Text>
+            <TextInput style={globalStyles.inputText}
               onChangeText={(text) => {
                 setPassword(text);
               }}
               secureTextEntry={true}
             />
             <View />
-            <TouchableOpacity style={styles.button} onPress={postLogin}>
-              <Text style={styles.buttonText}>Login</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={getData}>
-              <Text>get token Login</Text>
+            <TouchableOpacity style={globalStyles.button} onPress={postLogin}>
+              <Text style={globalStyles.buttonText}>Login</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>

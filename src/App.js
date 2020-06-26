@@ -22,7 +22,7 @@ const App = () => {
         <Stack.Screen
           name="Landing"
           component={Landing}
-          options={{title: 'Please login'}}
+          options={{title: 'Silahkan login'}}
         />
         <Stack.Screen
           name="Login"
