@@ -16,43 +16,40 @@ import {
   Text,
   TouchableOpacity,
   Alert,
-  Platform,
+  Platform
 } from 'react-native';
 import {mutate} from '../../services/graphql/api';
 import {gql} from 'apollo-boost';
 import AsyncStorage from '@react-native-community/async-storage';
 import globalStyles from '../../asset/global/style';
 import loginStyle from '../../asset/page/login';
+import {connect} from 'react-redux';
+import AUTH_ACTION from '../../stores/actions/auth';
 
-const Login = ({navigation}) => {
+const Login = ({navigation, setLogin}) => {
   const [username, setUsername] = useState('tomo@icube.us');
   const [password, setPassword] = useState('Admin123');
 
-  const gotoHome = () => {
-    navigation.navigate('Home', { email: username });
-  };
+  // const [username, setUsername] = useState(Platform.OS === 'ios' ? '' : null);
+  // const [password, setPassword] = useState(Platform.OS === 'ios' ? '' : null);
 
   const getData = async () => {
-    try {
-      const value = await AsyncStorage.getItem('token');
-      if (value !== null) {
-        gotoHome();
-      }
-    } catch (e) {
-      // error reading value
-    }
+    let response = null;
+
+		try {
+			response = await AsyncStorage.getItem('token');
+			response = response !== null ? response : null;
+		} catch (error) {
+			console.log(error);
+		}
+		return response;
   };
 
-  const storeData = async value => {
+  const storeData = async (value) => {
     try {
-      let dataFormat = {
-        type: 'signIn',
-        token: value,
-      };
-      const jsonValue = JSON.stringify(dataFormat);
-      await AsyncStorage.setItem('token', jsonValue);
-    } catch (e) {
-      // saving error
+      await AsyncStorage.setItem('token', value);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -70,9 +67,16 @@ const Login = ({navigation}) => {
     mutate(schema, params).then(res => {
       const {data} = res;
       const user = data.generateCustomerTokenCustom;
-      getData(user.token);
+      console.log('user ' + user);
       storeData(user.token);
-      // console.log(user.token);
+      let dataFormat = {
+        type: 'login',
+        token: user.token,
+      };
+      setLogin(dataFormat);
+      if (user.token !== null) {
+        navigation.navigate('Home', {email: username});
+        }
     });
   };
   return (
@@ -105,4 +109,7 @@ const Login = ({navigation}) => {
   );
 };
 
-export default Login;
+const mapDispatchToProps = (dispatch) => ({
+  setLogin: (data) => dispatch(AUTH_ACTION.setToken(data)),
+});
+export default connect(null, mapDispatchToProps)(Login);

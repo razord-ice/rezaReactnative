@@ -15,32 +15,63 @@ import {
   Text,
   TouchableOpacity,
 } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
+import AUTH_ACTION from '../../stores/actions/auth';
+import {connect} from 'react-redux';
+import { gql } from 'apollo-boost';
 import globalStyles from '../../asset/global/style';
+import {query} from '../../services/graphql/api';
 
-const Home = ({route, navigation}) => {
-const { email } = route.params;
-  const gotoLanding = () => {
-    navigation.navigate('Landing');
-  };
-  const logOut = async () => {
-    try {
-      await AsyncStorage.removeItem('token');
-    } catch (e) {
-      // remove error
+const gqlCustomerData = gql`
+  {
+    customer(selectedStore: 1) {
+      email
+      firstname
+      lastname
+      date_of_birth
+      gender
     }
-    gotoLanding();
-    console.log('Done.');
+  }
+`;
+
+const Home = ({auth, navigation, setSign}) => {
+  const [user, setUser] = useState();
+  const [isLoading, setIsLoading] = useState(true);
+
+  query(gqlCustomerData).then((res) => {
+    setUser(res.data.customer);
+    setIsLoading(false);
+  });
+  
+  const gotoProfile = () => {
+    navigation.navigate('Profile');
   };
+
+  const logOut = () => {
+    setSign(null);
+  };
+
+  if (isLoading) {
+    return (
+      <View>
+        <Text>Please Wait .....</Text>
+      </View>
+    );
+  }
+
   return (
     <>
       <SafeAreaView>
         <ScrollView>
           <View style={globalStyles.margin}>
-            <Text style={globalStyles.h1}>Sukses Login!!</Text>
-            <Text style={globalStyles.welcome}>Selamat datang, {email}</Text>
+            <Text style={globalStyles.h1}>Homepage</Text>
+            <Text>Your Token: {auth.user.token}</Text>
+            <Text style={globalStyles.welcome}>Selamat datang, {user.firstname} {user.lastname}</Text>
+            <Text>Email : {user.email}</Text>
             <TouchableOpacity style={globalStyles.buttonLogout} onPress={logOut}>
               <Text style={globalStyles.buttonText}>Log Out</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={globalStyles.button} onPress={gotoProfile}>
+              <Text style={globalStyles.buttonText}>Profile & Notif</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -49,4 +80,12 @@ const { email } = route.params;
   );
 };
 
-export default Home;
+const mapDispatchToProps = (dispatch) => ({
+  setSign: (data) => dispatch(AUTH_ACTION.set(data)),
+});
+
+const mapStateToProps = (state) => ({
+  auth: state.auth,
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home);
